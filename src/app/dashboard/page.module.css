@@ -1,0 +1,92 @@
+@keyframes typing {
+  from { 
+    width: 0;
+    border-right-color: #60A5FA;
+  }
+  to { 
+    width: 12ch;
+    border-right-color: #60A5FA;
+  }
+}
+
+@keyframes blinkCaret {
+  from, to { border-color: transparent }
+  50% { border-color: #60A5FA }
+}
+
+.typingText {
+  position: relative;
+  border-right: 3px solid #60A5FA;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  animation: typing 2.5s steps(12, end) forwards,
+             blinkCaret 0.75s step-end infinite;
+  animation-delay: 0.5s;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slidePanel {
+  animation: slideIn 0.3s ease-out forwards;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 32rem;
+  background: rgba(31, 41, 55, 0.95);
+  backdrop-filter: blur(8px);
+  border-left: 1px solid rgba(75, 85, 99, 0.5);
+  z-index: 50;
+}
+
+.resizeHandle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.2s;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background: rgba(96, 165, 250, 0.5);
+}
+
+/* Create a wrapper class for scrollable content */
+.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(75, 85, 99, 0.5) rgba(31, 41, 55, 0.5);
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.7);
+} 
