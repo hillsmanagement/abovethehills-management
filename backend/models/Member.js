@@ -36,10 +36,9 @@ const memberSchema = new mongoose.Schema({
   },
   dateOfBirth: {
     type: Date,
-    required: [true, 'Date of birth is required'],
     validate: {
       validator: function(v) {
-        return v instanceof Date && !isNaN(v);
+        return !v || (v instanceof Date && !isNaN(v));
       },
       message: props => 'Please provide a valid date of birth'
     }
