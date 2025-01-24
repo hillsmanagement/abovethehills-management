@@ -77,8 +77,20 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showFinanceForm, setShowFinanceForm] = useState(false);
   const [financeSummary, setFinanceSummary] = useState<FinanceSummary>({
-    monthlyTotal: 0,
-    todayTotal: 0
+    monthly: {
+      totalAmount: 0,
+      offering: 0,
+      tithe: 0,
+      seed: 0,
+      seedOfFaith: 0
+    },
+    today: {
+      totalAmount: 0,
+      offering: 0,
+      tithe: 0,
+      seed: 0,
+      seedOfFaith: 0
+    }
   });
 
   // State for attendance
