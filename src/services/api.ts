@@ -1,6 +1,7 @@
 import { Member, Announcement, Transaction, FinanceSummary, ApiError, AttendanceRecord, ApiResponse } from '../types';
 
-const API_URL = 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, '') || 'http://localhost:5000';
+const API_URL = `${API_BASE_URL}/api`;
 
 // Helper function to handle API calls
 async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
