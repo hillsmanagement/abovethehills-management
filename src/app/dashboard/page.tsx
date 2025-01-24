@@ -54,6 +54,18 @@ const months = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+// Add this helper function at the top of the file
+const formatDate = (date: string | Date | null | undefined): string => {
+  if (!date) return '';
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  } catch {
+    return '';
+  }
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   
@@ -1040,16 +1052,18 @@ export default function DashboardPage() {
                                 <div>
                                   <label className="text-xs text-gray-500">Date of Birth</label>
                                   <p className="text-white">
-                                    {new Date(member.dateOfBirth).toLocaleDateString('en-US', { 
-                                      month: 'long', 
-                                      day: 'numeric' 
-                                    })}
+                                    {member.dateOfBirth 
+                                      ? new Date(member.dateOfBirth as any).toLocaleDateString('en-US', { 
+                                          month: 'long', 
+                                          day: 'numeric' 
+                                        })
+                                      : 'Not provided'}
                                   </p>
                                 </div>
                                 <div>
                                   <label className="text-xs text-gray-500">Member Since</label>
                                   <p className="text-white">
-                                    {new Date(member.membershipDate).toLocaleDateString()}
+                                    {new Date(member.membershipDate as any).toLocaleDateString('en-US')}
                                   </p>
                                 </div>
                                 <div>
@@ -1078,10 +1092,12 @@ export default function DashboardPage() {
                                       address: member.address.street,
                                       phone: member.phone.replace(/^\+\d+/, ''),
                                       countryCode: member.phone.match(/^\+(\d+)/)?.[1] || '234',
-                                      birthDate: new Date(member.dateOfBirth).toLocaleDateString('en-US', { 
-                                        month: 'long', 
-                                        day: 'numeric' 
-                                      }),
+                                      birthDate: member.dateOfBirth 
+                                        ? new Date(member.dateOfBirth as any).toLocaleDateString('en-US', { 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                          })
+                                        : '',
                                       ageCategory: member.notes?.match(/Age Category: (\w+)/)?.[1] as any || 'youth',
                                       departments: member.department,
                                       isStudent: member.notes?.includes('Student') || false,
