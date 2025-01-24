@@ -6,6 +6,7 @@ import type { Member, Announcement, Transaction, FinanceSummary, AttendanceRecor
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io';
 
 interface MemberFormData {
   fullName: string;
@@ -64,6 +65,56 @@ const formatDate = (date: string | Date | null | undefined): string => {
   } catch {
     return '';
   }
+};
+
+// Add this before the DashboardPage component
+const FloatingScrollButton = () => {
+  const [showButton, setShowButton] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      setShowButton(scrollTop > 100);
+      setIsAtBottom(Math.ceil(scrollTop + clientHeight) >= scrollHeight);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToPosition = (position: 'top' | 'bottom') => {
+    window[position === 'top' ? 'scrollTo' : 'scrollTo']({
+      top: position === 'top' ? 0 : document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  };
+
+  if (!showButton) return null;
+
+  return (
+    <div className="fixed right-6 bottom-6 flex flex-col gap-2 z-50">
+      <button
+        onClick={() => scrollToPosition('top')}
+        className={`p-3 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all
+          ${!isAtBottom ? 'opacity-100' : 'opacity-50'}`}
+        aria-label="Scroll to top"
+      >
+        <IoIosArrowUp size={24} />
+      </button>
+      <button
+        onClick={() => scrollToPosition('bottom')}
+        className={`p-3 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all
+          ${isAtBottom ? 'opacity-50' : 'opacity-100'}`}
+        aria-label="Scroll to bottom"
+      >
+        <IoIosArrowDown size={24} />
+      </button>
+    </div>
+  );
 };
 
 export default function DashboardPage() {
@@ -801,7 +852,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Success message toast */}
       {successMessage && (
         <div className="fixed top-4 right-4 px-4 py-2 bg-green-500 text-white rounded-lg shadow-lg z-50">
@@ -1471,259 +1522,287 @@ export default function DashboardPage() {
 
       {/* Member Registration Modal */}
       {showMemberForm && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40">
-          <div className={styles.slidePanel} style={{ width: `${panelWidth}px` }}>
-            <div 
-              className={styles.resizeHandle}
-              onMouseDown={handleResizeStart}
-            />
-            <div className="h-full flex flex-col">
-              <div className="p-6 border-b border-gray-700/50">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-white">Register New Member</h3>
-                  <button
-                    onClick={() => setShowMemberForm(false)}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">
+                {editingId ? 'Edit Member' : 'Add New Member'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowMemberForm(false);
+                  setEditingId(null);
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleMemberSubmit} className="p-6 space-y-6">
+              {/* Name Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-blue-400">Personal Information</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      id="fullName"
+                      value={memberForm.fullName}
+                      onChange={(e) => setMemberForm(prev => ({ ...prev, fullName: e.target.value }))}
+                      required
+                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                      placeholder="Enter full name"
+                    />
+                  </div>
                 </div>
               </div>
-              <div className={`flex-1 overflow-auto ${styles.scrollable}`}>
-                <form onSubmit={handleMemberSubmit} className="p-6 space-y-6">
-                  <div className="space-y-6">
-                    <div>
-                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        id="fullName"
-                        value={memberForm.fullName}
-                        onChange={(e) => setMemberForm(prev => ({ ...prev, fullName: e.target.value }))}
-                        required
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+
+              {/* Contact Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-blue-400">Contact Details</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
+                      Phone Number
+                    </label>
+                    <div className="mt-1 flex gap-2">
+                      <select
+                        value={memberForm.countryCode}
+                        onChange={(e) => setMemberForm(prev => ({ ...prev, countryCode: e.target.value }))}
+                        className="px-3 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
                           focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
                           focus:outline-none transition-all"
-                        placeholder="Enter full name"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="address" className="block text-sm font-medium text-gray-300">
-                        Address
-                      </label>
-                      <input
-                        type="text"
-                        id="address"
-                        value={memberForm.address}
-                        onChange={(e) => setMemberForm(prev => ({ ...prev, address: e.target.value }))}
-                        required
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                        placeholder="Enter address"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
-                        Phone Number
-                      </label>
-                      <div className="mt-1 flex gap-2">
-                        <div className="relative w-40">
-                          <select
-                            value={memberForm.countryCode}
-                            onChange={(e) => setMemberForm(prev => ({ ...prev, countryCode: e.target.value }))}
-                            className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                              focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                              focus:outline-none transition-all appearance-none"
-                            style={{
-                              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                              backgroundPosition: 'right 0.5rem center',
-                              backgroundRepeat: 'no-repeat',
-                              backgroundSize: '1.5em 1.5em',
-                              paddingRight: '2.5rem'
-                            }}
-                          >
-                            {countryPhoneCodes.map(({ code, country }) => (
-                              <option key={code} value={code} className="bg-gray-800 text-white">
-                                +{code} {country}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <input
-                          type="tel"
-                          value={memberForm.phone}
-                          onChange={(e) => setMemberForm(prev => ({ ...prev, phone: e.target.value }))}
-                          required
-                          className="flex-1 px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                            focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                            focus:outline-none transition-all"
-                          placeholder="Enter phone number"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label htmlFor="birthDate" className="block text-sm font-medium text-gray-300">
-                        Date of Birth (Month & Day, optional)
-                      </label>
-                      <div className="relative mt-1">
-                        <input
-                          type="text"
-                          id="birthDate"
-                          value={memberForm.birthDate}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setMemberForm(prev => ({ ...prev, birthDate: value }));
-                            
-                            // Show suggestions when typing month
-                            if (value && !value.includes(' ')) {
-                              const suggestions = months.filter(month => 
-                                month.toLowerCase().startsWith(value.toLowerCase())
-                              );
-                              setMonthSuggestions(suggestions);
-                            } else {
-                              setMonthSuggestions([]);
-                            }
-                          }}
-                          placeholder="e.g. January 15"
-                          className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                            focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                            focus:outline-none transition-all"
-                        />
-                        {monthSuggestions.length > 0 && (
-                          <div className="absolute z-10 w-full mt-1 py-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
-                            {monthSuggestions.map((month) => (
-                              <button
-                                key={month}
-                                type="button"
-                                onClick={() => {
-                                  setMemberForm(prev => ({ ...prev, birthDate: month + ' ' }));
-                                  setMonthSuggestions([]);
-                                }}
-                                className="w-full px-4 py-2 text-left text-white hover:bg-gray-700/50 transition-colors"
-                              >
-                                {month}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label htmlFor="ageCategory" className="block text-sm font-medium text-gray-300">
-                        Age Category
-                      </label>
-                      <div className="relative mt-1">
-                        <select
-                          id="ageCategory"
-                          value={memberForm.ageCategory}
-                          onChange={(e) => setMemberForm(prev => ({ 
-                            ...prev, 
-                            ageCategory: e.target.value as 'children' | 'youth' | 'adults'
-                          }))}
-                          required
-                          className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                            focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                            focus:outline-none transition-all appearance-none"
-                          style={{
-                            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                            backgroundPosition: 'right 0.5rem center',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundSize: '1.5em 1.5em',
-                            paddingRight: '2.5rem'
-                          }}
-                        >
-                          <option value="children" className="bg-gray-800 text-white">Children</option>
-                          <option value="youth" className="bg-gray-800 text-white">Youth</option>
-                          <option value="adults" className="bg-gray-800 text-white">Adults</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label htmlFor="departments" className="block text-sm font-medium text-gray-300">
-                        Departments
-                      </label>
-                      <div className={`mt-1 space-y-2 max-h-48 overflow-auto ${styles.scrollable}`}>
-                        {categories
-                          .filter(cat => !['all', 'divider', 'divider2', 'age_cat', 'children', 'youth', 'adults', 'newcomers']
-                            .includes(cat.id))
-                          .map(department => (
-                            <label key={department.id} className="flex items-center space-x-2">
-                              <input
-                                type="checkbox"
-                                checked={memberForm.departments.includes(department.id)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setMemberForm(prev => ({
-                                      ...prev,
-                                      departments: [...prev.departments, department.id]
-                                    }));
-                                  } else {
-                                    setMemberForm(prev => ({
-                                      ...prev,
-                                      departments: prev.departments.filter(id => id !== department.id)
-                                    }));
-                                  }
-                                }}
-                                className="w-4 h-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
-                              />
-                              <span className="text-gray-300">{department.label}</span>
-                            </label>
+                      >
+                        {countryPhoneCodes.map(({ code, country }) => (
+                          <option key={code} value={code} className="bg-gray-800 text-white">
+                            +{code} {country}
+                          </option>
                         ))}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={memberForm.isStudent}
-                          onChange={(e) => setMemberForm(prev => ({ ...prev, isStudent: e.target.checked }))}
-                          className="w-4 h-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
-                        />
-                        <span className="text-gray-300">Student</span>
-                      </label>
-
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={memberForm.isNewMember}
-                          onChange={(e) => setMemberForm(prev => ({ ...prev, isNewMember: e.target.checked }))}
-                          className="w-4 h-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
-                        />
-                        <span className="text-gray-300">New Member</span>
-                      </label>
+                      </select>
+                      <input
+                        type="tel"
+                        id="phone"
+                        value={memberForm.phone}
+                        onChange={(e) => setMemberForm(prev => ({ ...prev, phone: e.target.value }))}
+                        required
+                        className="flex-1 px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                          focus:outline-none transition-all"
+                        placeholder="Enter phone number"
+                      />
                     </div>
                   </div>
 
-                  <div className="flex justify-end space-x-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowMemberForm(false)}
-                      className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSaving}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
-                        transition-colors disabled:opacity-50 disabled:hover:bg-blue-500"
-                    >
-                      {isSaving ? 'Saving...' : 'Save Member'}
-                    </button>
+                  <div>
+                    <label htmlFor="address" className="block text-sm font-medium text-gray-300">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      id="address"
+                      value={memberForm.address}
+                      onChange={(e) => setMemberForm(prev => ({ ...prev, address: e.target.value }))}
+                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                      placeholder="Enter address (optional)"
+                    />
                   </div>
-                </form>
+                </div>
               </div>
-            </div>
+
+              {/* Additional Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-blue-400">Additional Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="birthDate" className="block text-sm font-medium text-gray-300">
+                      Date of Birth (Month & Day, optional)
+                    </label>
+                    <div className="relative mt-1">
+                      <input
+                        type="text"
+                        id="birthDate"
+                        value={memberForm.birthDate}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setMemberForm(prev => ({ ...prev, birthDate: value }));
+                          if (value && !value.includes(' ')) {
+                            const suggestions = months.filter(month => 
+                              month.toLowerCase().startsWith(value.toLowerCase())
+                            );
+                            setMonthSuggestions(suggestions);
+                          } else {
+                            setMonthSuggestions([]);
+                          }
+                        }}
+                        className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                          focus:outline-none transition-all"
+                        placeholder="e.g. January 15"
+                      />
+                      {monthSuggestions.length > 0 && (
+                        <ul className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+                          {monthSuggestions.map((month) => (
+                            <li
+                              key={month}
+                              className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
+                              onClick={() => {
+                                setMemberForm(prev => ({ ...prev, birthDate: month + ' ' }));
+                                setMonthSuggestions([]);
+                              }}
+                            >
+                              {month}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Age Category
+                    </label>
+                    <div className="flex gap-4">
+                      {['children', 'youth', 'adults'].map((category) => (
+                        <label key={category} className="flex items-center">
+                          <input
+                            type="radio"
+                            name="ageCategory"
+                            value={category}
+                            checked={memberForm.ageCategory === category}
+                            onChange={(e) => setMemberForm(prev => ({ ...prev, ageCategory: e.target.value as any }))}
+                            className="sr-only"
+                          />
+                          <span className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-all
+                            ${memberForm.ageCategory === category
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                          >
+                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Departments
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {['Choir', 'Protocol', 'Media', 'Ushering', 'Children', 'Welfare'].map((dept) => (
+                        <label key={dept} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={memberForm.departments.includes(dept)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setMemberForm(prev => ({
+                                  ...prev,
+                                  departments: [...prev.departments, dept]
+                                }));
+                              } else {
+                                setMemberForm(prev => ({
+                                  ...prev,
+                                  departments: prev.departments.filter(d => d !== dept)
+                                }));
+                              }
+                            }}
+                            className="sr-only"
+                          />
+                          <span className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-all
+                            ${memberForm.departments.includes(dept)
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                          >
+                            {dept}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={memberForm.isStudent}
+                        onChange={(e) => setMemberForm(prev => ({ ...prev, isStudent: e.target.checked }))}
+                        className="sr-only"
+                      />
+                      <span className={`w-4 h-4 border rounded transition-all flex items-center justify-center
+                        ${memberForm.isStudent
+                          ? 'bg-blue-500 border-blue-500'
+                          : 'border-gray-600 hover:border-gray-500'}`}
+                      >
+                        {memberForm.isStudent && (
+                          <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="text-sm text-gray-300">Student</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={memberForm.isNewMember}
+                        onChange={(e) => setMemberForm(prev => ({ ...prev, isNewMember: e.target.checked }))}
+                        className="sr-only"
+                      />
+                      <span className={`w-4 h-4 border rounded transition-all flex items-center justify-center
+                        ${memberForm.isNewMember
+                          ? 'bg-blue-500 border-blue-500'
+                          : 'border-gray-600 hover:border-gray-500'}`}
+                      >
+                        {memberForm.isNewMember && (
+                          <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="text-sm text-gray-300">New Member</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMemberForm(false);
+                    setEditingId(null);
+                  }}
+                  className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={`px-4 py-2 rounded-lg text-white font-medium transition-all
+                    ${isSaving
+                      ? 'bg-blue-600/50 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  {isSaving ? 'Saving...' : editingId ? 'Update Member' : 'Add Member'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -2091,6 +2170,7 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+      <FloatingScrollButton />
     </div>
   );
 } 
