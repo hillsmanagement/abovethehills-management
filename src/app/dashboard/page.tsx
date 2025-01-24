@@ -1570,7 +1570,7 @@ export default function DashboardPage() {
 
                     <div>
                       <label htmlFor="birthDate" className="block text-sm font-medium text-gray-300">
-                        Date of Birth (Month & Day)
+                        Date of Birth (Month & Day, optional)
                       </label>
                       <div className="relative mt-1">
                         <input
@@ -1591,11 +1591,10 @@ export default function DashboardPage() {
                               setMonthSuggestions([]);
                             }
                           }}
-                          required
+                          placeholder="e.g. January 15"
                           className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
                             focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
                             focus:outline-none transition-all"
-                          placeholder="e.g. January 15"
                         />
                         {monthSuggestions.length > 0 && (
                           <div className="absolute z-10 w-full mt-1 py-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
