@@ -9,7 +9,7 @@ export interface Member {
     state: string;
     zipCode: string;
   };
-  dateOfBirth: Date;
+  dateOfBirth?: Date;
   gender: 'male' | 'female' | 'other';
   membershipDate: Date;
   membershipStatus: 'active' | 'inactive' | 'pending';

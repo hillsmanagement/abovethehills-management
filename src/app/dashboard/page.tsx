@@ -303,23 +303,19 @@ export default function DashboardPage() {
         throw new Error('Please enter a valid phone number');
       }
 
-      // Validate birth date
-      if (!memberForm.birthDate) {
-        throw new Error('Please enter a valid date of birth');
-      }
-
-      // Parse the birth date (e.g., "January 15" to a Date object)
-      const [month, day] = memberForm.birthDate.split(' ');
-      const currentYear = new Date().getFullYear();
-      const monthIndex = months.findIndex(m => m.toLowerCase() === month.toLowerCase());
-      if (monthIndex === -1 || !day || isNaN(Number(day))) {
-        throw new Error('Please enter a valid date of birth (e.g., January 15)');
-      }
-
-      // Create date with current year
-      const birthDate = new Date(Date.UTC(currentYear, monthIndex, Number(day)));
-      if (isNaN(birthDate.getTime())) {
-        throw new Error('Invalid date format');
+      let birthDate = undefined;
+      if (memberForm.birthDate) {
+        // Parse the birth date (e.g., "January 15" to a Date object)
+        const [month, day] = memberForm.birthDate.split(' ');
+        const currentYear = new Date().getFullYear();
+        const monthIndex = months.findIndex(m => m.toLowerCase() === month.toLowerCase());
+        
+        if (monthIndex !== -1 && day && !isNaN(Number(day))) {
+          birthDate = new Date(Date.UTC(currentYear, monthIndex, Number(day)));
+          if (isNaN(birthDate.getTime())) {
+            birthDate = undefined;
+          }
+        }
       }
 
       const memberData: Omit<Member, '_id' | 'createdAt' | 'updatedAt'> = {
@@ -332,7 +328,7 @@ export default function DashboardPage() {
           state: 'N/A',
           zipCode: 'N/A'
         },
-        dateOfBirth: birthDate,
+        ...(birthDate && { dateOfBirth: birthDate }),
         gender: 'other',
         membershipDate: new Date(),
         membershipStatus: memberForm.isNewMember ? 'pending' : 'active',
