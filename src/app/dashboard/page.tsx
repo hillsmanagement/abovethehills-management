@@ -1520,10 +1520,11 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Member Registration Modal */}
+      {/* Member Form */}
       {showMemberForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Header */}
             <div className="sticky top-0 bg-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">
                 {editingId ? 'Edit Member' : 'Add New Member'}
@@ -1541,14 +1542,15 @@ export default function DashboardPage() {
               </button>
             </div>
 
+            {/* Form */}
             <form onSubmit={handleMemberSubmit} className="p-6 space-y-6">
-              {/* Name Section */}
+              {/* Basic Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-blue-400">Personal Information</h3>
                 <div className="grid grid-cols-1 gap-4">
+                  {/* Full Name */}
                   <div>
                     <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">
-                      Full Name
+                      Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -1562,22 +1564,17 @@ export default function DashboardPage() {
                       placeholder="Enter full name"
                     />
                   </div>
-                </div>
-              </div>
 
-              {/* Contact Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-blue-400">Contact Details</h3>
-                <div className="grid grid-cols-1 gap-4">
+                  {/* Phone Number */}
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
-                      Phone Number
+                      Phone Number <span className="text-red-500">*</span>
                     </label>
                     <div className="mt-1 flex gap-2">
                       <select
                         value={memberForm.countryCode}
                         onChange={(e) => setMemberForm(prev => ({ ...prev, countryCode: e.target.value }))}
-                        className="px-3 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                        className="w-32 px-3 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
                           focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
                           focus:outline-none transition-all"
                       >
@@ -1601,6 +1598,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
+                  {/* Address */}
                   <div>
                     <label htmlFor="address" className="block text-sm font-medium text-gray-300">
                       Address
@@ -1616,13 +1614,8 @@ export default function DashboardPage() {
                       placeholder="Enter address (optional)"
                     />
                   </div>
-                </div>
-              </div>
 
-              {/* Additional Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-blue-400">Additional Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Birth Date */}
                   <div>
                     <label htmlFor="birthDate" className="block text-sm font-medium text-gray-300">
                       Date of Birth (Month & Day, optional)
@@ -1667,119 +1660,124 @@ export default function DashboardPage() {
                       )}
                     </div>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Age Category
-                    </label>
-                    <div className="flex gap-4">
-                      {['children', 'youth', 'adults'].map((category) => (
-                        <label key={category} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="ageCategory"
-                            value={category}
-                            checked={memberForm.ageCategory === category}
-                            onChange={(e) => setMemberForm(prev => ({ ...prev, ageCategory: e.target.value as any }))}
-                            className="sr-only"
-                          />
-                          <span className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-all
-                            ${memberForm.ageCategory === category
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
-                          >
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Departments
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {['Choir', 'Protocol', 'Media', 'Ushering', 'Children', 'Welfare'].map((dept) => (
-                        <label key={dept} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={memberForm.departments.includes(dept)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setMemberForm(prev => ({
-                                  ...prev,
-                                  departments: [...prev.departments, dept]
-                                }));
-                              } else {
-                                setMemberForm(prev => ({
-                                  ...prev,
-                                  departments: prev.departments.filter(d => d !== dept)
-                                }));
-                              }
-                            }}
-                            className="sr-only"
-                          />
-                          <span className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-all
-                            ${memberForm.departments.includes(dept)
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
-                          >
-                            {dept}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={memberForm.isStudent}
-                        onChange={(e) => setMemberForm(prev => ({ ...prev, isStudent: e.target.checked }))}
-                        className="sr-only"
-                      />
-                      <span className={`w-4 h-4 border rounded transition-all flex items-center justify-center
-                        ${memberForm.isStudent
-                          ? 'bg-blue-500 border-blue-500'
-                          : 'border-gray-600 hover:border-gray-500'}`}
-                      >
-                        {memberForm.isStudent && (
-                          <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </span>
-                      <span className="text-sm text-gray-300">Student</span>
-                    </label>
-
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={memberForm.isNewMember}
-                        onChange={(e) => setMemberForm(prev => ({ ...prev, isNewMember: e.target.checked }))}
-                        className="sr-only"
-                      />
-                      <span className={`w-4 h-4 border rounded transition-all flex items-center justify-center
-                        ${memberForm.isNewMember
-                          ? 'bg-blue-500 border-blue-500'
-                          : 'border-gray-600 hover:border-gray-500'}`}
-                      >
-                        {memberForm.isNewMember && (
-                          <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </span>
-                      <span className="text-sm text-gray-300">New Member</span>
-                    </label>
-                  </div>
                 </div>
               </div>
 
+              {/* Member Status */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-blue-400">Member Status</h3>
+                
+                {/* Age Category */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Age Category <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex gap-4">
+                    {['children', 'youth', 'adults'].map((category) => (
+                      <label key={category} className="flex items-center">
+                        <input
+                          type="radio"
+                          name="ageCategory"
+                          value={category}
+                          checked={memberForm.ageCategory === category}
+                          onChange={(e) => setMemberForm(prev => ({ ...prev, ageCategory: e.target.value as any }))}
+                          className="sr-only"
+                        />
+                        <span className={`px-4 py-2 rounded-lg text-sm cursor-pointer transition-all
+                          ${memberForm.ageCategory === category
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        >
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Additional Status */}
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={memberForm.isStudent}
+                      onChange={(e) => setMemberForm(prev => ({ ...prev, isStudent: e.target.checked }))}
+                      className="sr-only"
+                    />
+                    <span className={`w-5 h-5 border rounded transition-all flex items-center justify-center
+                      ${memberForm.isStudent
+                        ? 'bg-blue-500 border-blue-500'
+                        : 'border-gray-600 hover:border-gray-500'}`}
+                    >
+                      {memberForm.isStudent && (
+                        <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="text-sm text-gray-300">Student</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={memberForm.isNewMember}
+                      onChange={(e) => setMemberForm(prev => ({ ...prev, isNewMember: e.target.checked }))}
+                      className="sr-only"
+                    />
+                    <span className={`w-5 h-5 border rounded transition-all flex items-center justify-center
+                      ${memberForm.isNewMember
+                        ? 'bg-blue-500 border-blue-500'
+                        : 'border-gray-600 hover:border-gray-500'}`}
+                    >
+                      {memberForm.isNewMember && (
+                        <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="text-sm text-gray-300">New Member</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Departments */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-blue-400">Departments</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Choir', 'Protocol', 'Media', 'Ushering', 'Children', 'Welfare'].map((dept) => (
+                    <label key={dept} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={memberForm.departments.includes(dept)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setMemberForm(prev => ({
+                              ...prev,
+                              departments: [...prev.departments, dept]
+                            }));
+                          } else {
+                            setMemberForm(prev => ({
+                              ...prev,
+                              departments: prev.departments.filter(d => d !== dept)
+                            }));
+                          }
+                        }}
+                        className="sr-only"
+                      />
+                      <span className={`px-4 py-2 rounded-lg text-sm cursor-pointer transition-all
+                        ${memberForm.departments.includes(dept)
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                      >
+                        {dept}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Form Actions */}
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
                 <button
                   type="button"
