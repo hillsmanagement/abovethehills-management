@@ -23,6 +23,8 @@
   animation: typing 2.5s steps(12, end) forwards,
              blinkCaret 0.75s step-end infinite;
   animation-delay: 0.5s;
+  background-size: 200% auto;
+  animation: shine 2s linear infinite;
 }
 
 @keyframes slideIn {
@@ -37,16 +39,39 @@
 }
 
 .slidePanel {
-  animation: slideIn 0.3s ease-out forwards;
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
-  width: 32rem;
+  width: 600px;
   background: rgba(31, 41, 55, 0.95);
   backdrop-filter: blur(8px);
   border-left: 1px solid rgba(75, 85, 99, 0.5);
   z-index: 50;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s ease-out;
+}
+
+.slidePanelVisible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+.backdropVisible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .resizeHandle {
@@ -68,25 +93,40 @@
 /* Create a wrapper class for scrollable content */
 .scrollable {
   scrollbar-width: thin;
-  scrollbar-color: rgba(75, 85, 99, 0.5) rgba(31, 41, 55, 0.5);
+  scrollbar-color: rgba(59, 130, 246, 0.5) transparent;
 }
 
 .scrollable::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 .scrollable::-webkit-scrollbar-track {
-  background: rgba(31, 41, 55, 0.5);
-  border-radius: 4px;
+  background: transparent;
 }
 
 .scrollable::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.5);
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  background-color: rgba(59, 130, 246, 0.5);
+  border-radius: 3px;
 }
 
-.scrollable::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 0.7);
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.slidePanelExit {
+  animation: slideOut 0.3s ease-in;
 } 
