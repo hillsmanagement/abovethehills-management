@@ -862,6 +862,11 @@ export default function DashboardPage() {
     }
   };
 
+  const departments = [
+    'Choir', 'Drama', 'Usher', 'Protocol', 'ICT', 
+    'Media', 'Task Force', 'Pastor', 'Sanctuary', 'Technical'
+  ];
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex">
       {/* Success message toast */}
@@ -1535,8 +1540,9 @@ export default function DashboardPage() {
       <div className="fixed inset-y-0 right-0 z-50">
         {/* Member Form */}
         {showMemberForm && (
-          <div className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto">
-            <div className="sticky top-0 bg-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
+          <div className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto
+            animate-slide-in-right">
+            <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">
                 {editingId ? 'Edit Member' : 'Add New Member'}
               </h2>
@@ -1545,146 +1551,138 @@ export default function DashboardPage() {
                   setShowMemberForm(false);
                   setEditingId(null);
                 }}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="p-1.5 rounded-full text-gray-400 hover:text-white hover:bg-gray-700/50 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            {/* Form */}
+
             <form onSubmit={handleMemberSubmit} className="p-6 space-y-6">
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {/* Full Name */}
-                  <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">
-                      Full Name <span className="text-red-500">*</span>
-                    </label>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Full Name */}
+                <div className="col-span-2">
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    value={memberForm.fullName}
+                    onChange={(e) => setMemberForm(prev => ({ ...prev, fullName: e.target.value }))}
+                    required
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                    placeholder="Enter full name"
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div className="col-span-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="mt-1 flex gap-2">
+                    <select
+                      value={memberForm.countryCode}
+                      onChange={(e) => setMemberForm(prev => ({ ...prev, countryCode: e.target.value }))}
+                      className="w-28 px-2 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                    >
+                      {countryPhoneCodes.map(({ code, country }) => (
+                        <option key={code} value={code} className="bg-gray-800 text-white">
+                          +{code} {country}
+                        </option>
+                      ))}
+                    </select>
                     <input
-                      type="text"
-                      id="fullName"
-                      value={memberForm.fullName}
-                      onChange={(e) => setMemberForm(prev => ({ ...prev, fullName: e.target.value }))}
+                      type="tel"
+                      id="phone"
+                      value={memberForm.phone}
+                      onChange={(e) => setMemberForm(prev => ({ ...prev, phone: e.target.value }))}
                       required
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      className="flex-1 px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
                         focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
                         focus:outline-none transition-all"
-                      placeholder="Enter full name"
+                      placeholder="Enter phone number"
                     />
-                  </div>
-
-                  {/* Phone Number */}
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-300">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
-                    <div className="mt-1 flex gap-2">
-                      <select
-                        value={memberForm.countryCode}
-                        onChange={(e) => setMemberForm(prev => ({ ...prev, countryCode: e.target.value }))}
-                        className="w-32 px-3 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      >
-                        {countryPhoneCodes.map(({ code, country }) => (
-                          <option key={code} value={code} className="bg-gray-800 text-white">
-                            +{code} {country}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={memberForm.phone}
-                        onChange={(e) => setMemberForm(prev => ({ ...prev, phone: e.target.value }))}
-                        required
-                        className="flex-1 px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                        placeholder="Enter phone number"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Address */}
-                  <div>
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-300">
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      id="address"
-                      value={memberForm.address}
-                      onChange={(e) => setMemberForm(prev => ({ ...prev, address: e.target.value }))}
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                      placeholder="Enter address (optional)"
-                    />
-                  </div>
-
-                  {/* Birth Date */}
-                  <div>
-                    <label htmlFor="birthDate" className="block text-sm font-medium text-gray-300">
-                      Date of Birth (Month & Day, optional)
-                    </label>
-                    <div className="relative mt-1">
-                      <input
-                        type="text"
-                        id="birthDate"
-                        value={memberForm.birthDate}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setMemberForm(prev => ({ ...prev, birthDate: value }));
-                          if (value && !value.includes(' ')) {
-                            const suggestions = months.filter(month => 
-                              month.toLowerCase().startsWith(value.toLowerCase())
-                            );
-                            setMonthSuggestions(suggestions);
-                          } else {
-                            setMonthSuggestions([]);
-                          }
-                        }}
-                        className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                        placeholder="e.g. January 15"
-                      />
-                      {monthSuggestions.length > 0 && (
-                        <ul className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
-                          {monthSuggestions.map((month) => (
-                            <li
-                              key={month}
-                              className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
-                              onClick={() => {
-                                setMemberForm(prev => ({ ...prev, birthDate: month + ' ' }));
-                                setMonthSuggestions([]);
-                              }}
-                            >
-                              {month}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Member Status */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-blue-400">Member Status</h3>
-                
+                {/* Address */}
+                <div className="col-span-2">
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-300">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    value={memberForm.address}
+                    onChange={(e) => setMemberForm(prev => ({ ...prev, address: e.target.value }))}
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                    placeholder="Enter address (optional)"
+                  />
+                </div>
+
+                {/* Birth Date */}
+                <div className="col-span-1">
+                  <label htmlFor="birthDate" className="block text-sm font-medium text-gray-300">
+                    Date of Birth (optional)
+                  </label>
+                  <div className="relative mt-1">
+                    <input
+                      type="text"
+                      id="birthDate"
+                      value={memberForm.birthDate}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setMemberForm(prev => ({ ...prev, birthDate: value }));
+                        if (value && !value.includes(' ')) {
+                          const suggestions = months.filter(month => 
+                            month.toLowerCase().startsWith(value.toLowerCase())
+                          );
+                          setMonthSuggestions(suggestions);
+                        } else {
+                          setMonthSuggestions([]);
+                        }
+                      }}
+                      className="w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                      placeholder="e.g. January 15"
+                    />
+                    {monthSuggestions.length > 0 && (
+                      <ul className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-700 rounded-xl shadow-lg max-h-48 overflow-auto">
+                        {monthSuggestions.map((month) => (
+                          <li
+                            key={month}
+                            className="px-3 py-2 hover:bg-gray-700 cursor-pointer"
+                            onClick={() => {
+                              setMemberForm(prev => ({ ...prev, birthDate: month + ' ' }));
+                              setMonthSuggestions([]);
+                            }}
+                          >
+                            {month}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+
                 {/* Age Category */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                <div className="col-span-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Age Category <span className="text-red-500">*</span>
                   </label>
-                  <div className="flex gap-4">
+                  <div className="flex gap-2">
                     {['children', 'youth', 'adults'].map((category) => (
-                      <label key={category} className="flex items-center">
+                      <label key={category} className="flex-1">
                         <input
                           type="radio"
                           name="ageCategory"
@@ -1693,7 +1691,7 @@ export default function DashboardPage() {
                           onChange={(e) => setMemberForm(prev => ({ ...prev, ageCategory: e.target.value as any }))}
                           className="sr-only"
                         />
-                        <span className={`px-4 py-2 rounded-lg text-sm cursor-pointer transition-all
+                        <span className={`block px-3 py-2 rounded-xl text-xs text-center cursor-pointer transition-all
                           ${memberForm.ageCategory === category
                             ? 'bg-blue-500 text-white'
                             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
@@ -1706,7 +1704,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Additional Status */}
-                <div className="flex items-center gap-4">
+                <div className="col-span-2 flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -1714,7 +1712,7 @@ export default function DashboardPage() {
                       onChange={(e) => setMemberForm(prev => ({ ...prev, isStudent: e.target.checked }))}
                       className="sr-only"
                     />
-                    <span className={`w-5 h-5 border rounded transition-all flex items-center justify-center
+                    <span className={`w-4 h-4 border rounded-lg transition-all flex items-center justify-center
                       ${memberForm.isStudent
                         ? 'bg-blue-500 border-blue-500'
                         : 'border-gray-600 hover:border-gray-500'}`}
@@ -1735,7 +1733,7 @@ export default function DashboardPage() {
                       onChange={(e) => setMemberForm(prev => ({ ...prev, isNewMember: e.target.checked }))}
                       className="sr-only"
                     />
-                    <span className={`w-5 h-5 border rounded transition-all flex items-center justify-center
+                    <span className={`w-4 h-4 border rounded-lg transition-all flex items-center justify-center
                       ${memberForm.isNewMember
                         ? 'bg-blue-500 border-blue-500'
                         : 'border-gray-600 hover:border-gray-500'}`}
@@ -1749,60 +1747,60 @@ export default function DashboardPage() {
                     <span className="text-sm text-gray-300">New Member</span>
                   </label>
                 </div>
-              </div>
 
-              {/* Departments */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-blue-400">Departments</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['Choir', 'Protocol', 'Media', 'Ushering', 'Children', 'Welfare'].map((dept) => (
-                    <label key={dept} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={memberForm.departments.includes(dept)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setMemberForm(prev => ({
-                              ...prev,
-                              departments: [...prev.departments, dept]
-                            }));
-                          } else {
-                            setMemberForm(prev => ({
-                              ...prev,
-                              departments: prev.departments.filter(d => d !== dept)
-                            }));
-                          }
-                        }}
-                        className="sr-only"
-                      />
-                      <span className={`px-4 py-2 rounded-lg text-sm cursor-pointer transition-all
-                        ${memberForm.departments.includes(dept)
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
-                      >
-                        {dept}
-                      </span>
-                    </label>
-                  ))}
+                {/* Departments */}
+                <div className="col-span-2">
+                  <h3 className="text-sm font-medium text-gray-300 mb-2">Departments</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {departments.map((dept) => (
+                      <label key={dept} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={memberForm.departments.includes(dept)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setMemberForm(prev => ({
+                                ...prev,
+                                departments: [...prev.departments, dept]
+                              }));
+                            } else {
+                              setMemberForm(prev => ({
+                                ...prev,
+                                departments: prev.departments.filter(d => d !== dept)
+                              }));
+                            }
+                          }}
+                          className="sr-only"
+                        />
+                        <span className={`block w-full px-3 py-2 rounded-xl text-sm cursor-pointer transition-all text-center
+                          ${memberForm.departments.includes(dept)
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        >
+                          {dept}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Form Actions */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+              <div className="flex justify-end gap-2 pt-4 border-t border-gray-700">
                 <button
                   type="button"
                   onClick={() => {
                     setShowMemberForm(false);
                     setEditingId(null);
                   }}
-                  className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 transition-all"
+                  className="px-3 py-1.5 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className={`px-4 py-2 rounded-lg text-white font-medium transition-all
+                  className={`px-3 py-1.5 rounded-xl text-sm text-white font-medium transition-all
                     ${isSaving
                       ? 'bg-blue-600/50 cursor-not-allowed'
                       : 'bg-blue-600 hover:bg-blue-700'}`}
