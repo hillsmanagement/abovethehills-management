@@ -6,7 +6,6 @@ import type { Member, Announcement, Transaction, FinanceSummary, AttendanceRecor
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
-import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io';
 
 interface MemberFormData {
   fullName: string;
@@ -77,56 +76,6 @@ const formatDate = (date: string | Date | null | undefined): string => {
   } catch {
     return '';
   }
-};
-
-// Add this before the DashboardPage component
-const FloatingScrollButton = () => {
-  const [showButton, setShowButton] = useState(false);
-  const [isAtBottom, setIsAtBottom] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-      
-      setShowButton(scrollTop > 100);
-      setIsAtBottom(Math.ceil(scrollTop + clientHeight) >= scrollHeight);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToPosition = (position: 'top' | 'bottom') => {
-    window[position === 'top' ? 'scrollTo' : 'scrollTo']({
-      top: position === 'top' ? 0 : document.documentElement.scrollHeight,
-      behavior: 'smooth'
-    });
-  };
-
-  if (!showButton) return null;
-
-  return (
-    <div className="fixed right-6 bottom-6 flex flex-col gap-2 z-50">
-      <button
-        onClick={() => scrollToPosition('top')}
-        className={`p-3 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all
-          ${!isAtBottom ? 'opacity-100' : 'opacity-50'}`}
-        aria-label="Scroll to top"
-      >
-        <IoIosArrowUp size={24} />
-      </button>
-      <button
-        onClick={() => scrollToPosition('bottom')}
-        className={`p-3 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all
-          ${isAtBottom ? 'opacity-50' : 'opacity-100'}`}
-        aria-label="Scroll to bottom"
-      >
-        <IoIosArrowDown size={24} />
-      </button>
-    </div>
-  );
 };
 
 export default function DashboardPage() {
@@ -1546,7 +1495,7 @@ export default function DashboardPage() {
       <div className="fixed inset-y-0 right-0 z-50">
         {/* Member Form */}
         {showMemberForm && (
-          <div className={`${styles.slidePanel}`}>
+          <div className={`${styles.slidePanel} overflow-y-auto max-h-screen`}>
             <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">
                 {editingId ? 'Edit Member' : 'Add New Member'}
@@ -1819,7 +1768,7 @@ export default function DashboardPage() {
 
         {/* Attendance Form */}
         {showAttendanceForm && (
-          <div className={`${styles.slidePanel}`}>
+          <div className={`${styles.slidePanel} overflow-y-auto max-h-screen`}>
             <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Mark Attendance</h2>
               <button
@@ -2025,7 +1974,7 @@ export default function DashboardPage() {
 
         {/* Finance Form */}
         {showFinanceForm && (
-          <div className={`${styles.slidePanel}`}>
+          <div className={`${styles.slidePanel} overflow-y-auto max-h-screen`}>
             <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Record Transaction</h2>
               <button
@@ -2193,7 +2142,7 @@ export default function DashboardPage() {
 
         {/* Announcement Form */}
         {showAnnouncementForm && (
-          <div className={`${styles.slidePanel}`}>
+          <div className={`${styles.slidePanel} overflow-y-auto max-h-screen`}>
             <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Add Announcement</h2>
               <button
@@ -2335,7 +2284,6 @@ export default function DashboardPage() {
           }}
         />
       )}
-      <FloatingScrollButton />
     </div>
   );
 } 
