@@ -39,6 +39,7 @@ interface FinanceFormData {
   titheAmount: string;
   seedAmount: string;
   seedOfFaithAmount: string;
+  paymentMethod: string;
 }
 
 type AnnouncementStatus = 'draft' | 'sent';
@@ -222,7 +223,8 @@ export default function DashboardPage() {
     offeringAmount: '',
     titheAmount: '',
     seedAmount: '',
-    seedOfFaithAmount: ''
+    seedOfFaithAmount: '',
+    paymentMethod: 'cash'
   });
 
   // Clear success message after 3 seconds
@@ -503,7 +505,7 @@ export default function DashboardPage() {
         titheAmount: parseFloat(financeForm.titheAmount || '0'),
         seedAmount: parseFloat(financeForm.seedAmount || '0'),
         seedOfFaithAmount: parseFloat(financeForm.seedOfFaithAmount || '0'),
-        paymentMethod: 'cash',
+        paymentMethod: financeForm.paymentMethod,
         date: financeForm.date,
         status: 'completed',
         pastorEmail: 'gracedclem@gmail.com',
@@ -532,7 +534,8 @@ export default function DashboardPage() {
         offeringAmount: '',
         titheAmount: '',
         seedAmount: '',
-        seedOfFaithAmount: ''
+        seedOfFaithAmount: '',
+        paymentMethod: 'cash'
       });
       setSuccessMessage(editingId ? 'Transaction updated successfully' : 'Transaction saved successfully');
       setEditingId(null);
@@ -815,7 +818,8 @@ export default function DashboardPage() {
       offeringAmount: transaction.offeringAmount.toString(),
       titheAmount: transaction.titheAmount.toString(),
       seedAmount: transaction.seedAmount.toString(),
-      seedOfFaithAmount: transaction.seedOfFaithAmount.toString()
+      seedOfFaithAmount: transaction.seedOfFaithAmount.toString(),
+      paymentMethod: transaction.paymentMethod,
     });
     setEditingId(transaction._id);
     setShowFinanceForm(true);
@@ -2035,8 +2039,153 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
+
             <form onSubmit={handleFinanceSubmit} className="p-6 space-y-6">
-              {/* Form content */}
+              <div>
+                {/* Date */}
+                <div className="mb-4">
+                  <label htmlFor="date" className="block text-sm font-medium text-gray-300">
+                    Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    id="date"
+                    value={financeForm.date.toISOString().split('T')[0]}
+                    onChange={(e) => setFinanceForm(prev => ({ ...prev, date: new Date(e.target.value) }))}
+                    required
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+
+                {/* Payment Method */}
+                <div className="mb-4">
+                  <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-300">
+                    Payment Method <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="paymentMethod"
+                    value={financeForm.paymentMethod}
+                    onChange={(e) => setFinanceForm(prev => ({ ...prev, paymentMethod: e.target.value as any }))}
+                    required
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="online">Online Payment</option>
+                  </select>
+                </div>
+
+                {/* Amounts */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Offering Amount */}
+                  <div>
+                    <label htmlFor="offeringAmount" className="block text-sm font-medium text-gray-300">
+                      Offering Amount
+                    </label>
+                    <input
+                      type="number"
+                      id="offeringAmount"
+                      min="0"
+                      step="0.01"
+                      value={financeForm.offeringAmount}
+                      onChange={handleFinanceNumberInputChange('offeringAmount')}
+                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Tithe Amount */}
+                  <div>
+                    <label htmlFor="titheAmount" className="block text-sm font-medium text-gray-300">
+                      Tithe Amount
+                    </label>
+                    <input
+                      type="number"
+                      id="titheAmount"
+                      min="0"
+                      step="0.01"
+                      value={financeForm.titheAmount}
+                      onChange={handleFinanceNumberInputChange('titheAmount')}
+                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Seed Amount */}
+                  <div>
+                    <label htmlFor="seedAmount" className="block text-sm font-medium text-gray-300">
+                      Seed Amount
+                    </label>
+                    <input
+                      type="number"
+                      id="seedAmount"
+                      min="0"
+                      step="0.01"
+                      value={financeForm.seedAmount}
+                      onChange={handleFinanceNumberInputChange('seedAmount')}
+                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Seed of Faith Amount */}
+                  <div>
+                    <label htmlFor="seedOfFaithAmount" className="block text-sm font-medium text-gray-300">
+                      Seed of Faith Amount
+                    </label>
+                    <input
+                      type="number"
+                      id="seedOfFaithAmount"
+                      min="0"
+                      step="0.01"
+                      value={financeForm.seedOfFaithAmount}
+                      onChange={handleFinanceNumberInputChange('seedOfFaithAmount')}
+                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                        focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Total Amount Display */}
+                <div className="mt-6 p-4 bg-gray-700/30 rounded-xl border border-gray-600">
+                  <p className="text-sm font-medium text-gray-300">Total Amount</p>
+                  <p className="text-2xl font-bold text-white">
+                    ₦{totalAmount.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFinanceForm(false);
+                    setEditingId(null);
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving || !financeForm.date || !financeForm.paymentMethod}
+                  className={`px-3 py-1.5 rounded-xl text-sm text-white font-medium transition-all
+                    ${isSaving || !financeForm.date || !financeForm.paymentMethod
+                      ? 'bg-blue-600/50 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  {isSaving ? 'Saving...' : editingId ? 'Update Transaction' : 'Save Transaction'}
+                </button>
+              </div>
             </form>
           </div>
         )}
