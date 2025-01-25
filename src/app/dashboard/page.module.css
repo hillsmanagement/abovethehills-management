@@ -39,18 +39,16 @@
 }
 
 .slidePanel {
+  animation: slideIn 0.3s ease-out;
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
-  width: 600px;
+  width: 32rem;
   background: rgba(31, 41, 55, 0.95);
   backdrop-filter: blur(8px);
   border-left: 1px solid rgba(75, 85, 99, 0.5);
   z-index: 50;
-  transform: translateX(100%);
-  opacity: 0;
-  transition: all 0.3s ease-out;
 }
 
 .slidePanelVisible {
