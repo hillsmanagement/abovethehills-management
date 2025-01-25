@@ -791,7 +791,8 @@ export default function DashboardPage() {
     return !isNaN(numValue) && numValue >= 0;
   };
 
-  const handleFinanceNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof FinanceFormData) => {
+  // Function definition
+  const handleFinanceNumberInputChange = (field: keyof FinanceFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (validateNonNegativeNumber(value)) {
       setFinanceForm(prev => ({
@@ -2204,8 +2205,118 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
+
             <form onSubmit={handleAnnouncementSubmit} className="p-6 space-y-6">
-              {/* Form content */}
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-300">
+                  Subject <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  value={announcementForm.subject}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAnnouncementForm(prev => ({ ...prev, subject: e.target.value }))}
+                  required
+                  className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter announcement subject"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="content" className="block text-sm font-medium text-gray-300">
+                  Content <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="content"
+                  value={announcementForm.content}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAnnouncementForm(prev => ({ ...prev, content: e.target.value }))}
+                  required
+                  rows={4}
+                  className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all resize-none"
+                  placeholder="Enter announcement content"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="recipients" className="block text-sm font-medium text-gray-300">
+                  Recipients
+                </label>
+                <input
+                  type="text"
+                  id="recipients"
+                  value={announcementForm.recipients.join(', ')}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAnnouncementForm(prev => ({ 
+                    ...prev, 
+                    recipients: e.target.value.split(',').map(str => str.trim()).filter(Boolean)
+                  }))}
+                  className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter recipients (comma separated)"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="recipientGroups" className="block text-sm font-medium text-gray-300">
+                  Recipient Groups
+                </label>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {['Choir', 'Drama', 'Usher', 'Protocol', 'ICT', 'Media', 'Task Force', 'Pastor', 'Sanctuary', 'Technical'].map((group) => (
+                    <label key={group} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={announcementForm.recipientGroups.includes(group)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          if (e.target.checked) {
+                            setAnnouncementForm(prev => ({
+                              ...prev,
+                              recipientGroups: [...prev.recipientGroups, group]
+                            }));
+                          } else {
+                            setAnnouncementForm(prev => ({
+                              ...prev,
+                              recipientGroups: prev.recipientGroups.filter(g => g !== group)
+                            }));
+                          }
+                        }}
+                        className="sr-only"
+                      />
+                      <span className={`block w-full px-3 py-2 rounded-xl text-sm cursor-pointer transition-all text-center
+                        ${announcementForm.recipientGroups.includes(group)
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                      >
+                        {group}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => setShowAnnouncementForm(false)}
+                  className="px-3 py-1.5 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving || !announcementForm.subject || !announcementForm.content}
+                  className={`px-3 py-1.5 rounded-xl text-sm text-white font-medium transition-all
+                    ${isSaving || !announcementForm.subject || !announcementForm.content
+                      ? 'bg-blue-600/50 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  {isSaving ? 'Sending...' : 'Send Announcement'}
+                </button>
+              </div>
             </form>
           </div>
         )}
