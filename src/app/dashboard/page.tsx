@@ -863,7 +863,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white flex">
       {/* Success message toast */}
       {successMessage && (
         <div className="fixed top-4 right-4 px-4 py-2 bg-green-500 text-white rounded-lg shadow-lg z-50">
@@ -872,7 +872,7 @@ export default function DashboardPage() {
       )}
 
       {/* Sidebar Navigation */}
-      <nav className="w-64 bg-gray-800/40 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
+      <nav className="fixed left-0 top-0 h-screen w-64 bg-gray-800/40 backdrop-blur-sm border-r border-gray-700/50 flex flex-col">
         <div className="p-6">
           <div className="flex flex-col items-center space-y-4">
             {/* Logo with fallback */}
@@ -968,7 +968,7 @@ export default function DashboardPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 ml-64 overflow-auto">
         <div className="h-full p-8">
           {/* Content based on active tab */}
           {activeTab === 'announcements' && (
