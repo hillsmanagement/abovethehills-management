@@ -2323,16 +2323,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-        onClick={() => {
-          setShowMemberForm(false);
-          setShowAttendanceForm(false);
-          setShowFinanceForm(false);
-          setShowAnnouncementForm(false);
-          setEditingId(null);
-        }}
-      />
+      {(showMemberForm || showAttendanceForm || showFinanceForm || showAnnouncementForm) && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          onClick={() => {
+            setShowMemberForm(false);
+            setShowAttendanceForm(false);
+            setShowFinanceForm(false);
+            setShowAnnouncementForm(false);
+            setEditingId(null);
+          }}
+        />
+      )}
       <FloatingScrollButton />
     </div>
   );
