@@ -1829,8 +1829,191 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
+
             <form onSubmit={handleAttendanceSubmit} className="p-6 space-y-6">
-              {/* Form content */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Service Date */}
+                <div>
+                  <label htmlFor="serviceDate" className="block text-sm font-medium text-gray-300">
+                    Service Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    id="serviceDate"
+                    value={attendanceForm.serviceDate}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, serviceDate: e.target.value }))}
+                    required
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+
+                {/* Service Type */}
+                <div>
+                  <label htmlFor="serviceType" className="block text-sm font-medium text-gray-300">
+                    Service Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="serviceType"
+                    value={attendanceForm.serviceType}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, serviceType: e.target.value }))}
+                    required
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  >
+                    <option value="" disabled>Select service type</option>
+                    <option value="Sunday Service">Sunday Service</option>
+                    <option value="Bible Study">Bible Study</option>
+                    <option value="Prayer Meeting">Prayer Meeting</option>
+                    <option value="Special Service">Special Service</option>
+                  </select>
+                </div>
+
+                {/* Number of Men */}
+                <div>
+                  <label htmlFor="noOfMen" className="block text-sm font-medium text-gray-300">
+                    Number of Men
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfMen"
+                    min="0"
+                    value={attendanceForm.noOfMen}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, noOfMen: e.target.value }))}
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+
+                {/* Number of Women */}
+                <div>
+                  <label htmlFor="noOfWomen" className="block text-sm font-medium text-gray-300">
+                    Number of Women
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfWomen"
+                    min="0"
+                    value={attendanceForm.noOfWomen}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, noOfWomen: e.target.value }))}
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+
+                {/* Number of Boys */}
+                <div>
+                  <label htmlFor="noOfBoys" className="block text-sm font-medium text-gray-300">
+                    Number of Boys
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfBoys"
+                    min="0"
+                    value={attendanceForm.noOfBoys}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, noOfBoys: e.target.value }))}
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+
+                {/* Number of Girls */}
+                <div>
+                  <label htmlFor="noOfGirls" className="block text-sm font-medium text-gray-300">
+                    Number of Girls
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfGirls"
+                    min="0"
+                    value={attendanceForm.noOfGirls}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, noOfGirls: e.target.value }))}
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+
+                {/* Number of Children */}
+                <div>
+                  <label htmlFor="noOfChildren" className="block text-sm font-medium text-gray-300">
+                    Number of Children
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfChildren"
+                    min="0"
+                    value={attendanceForm.noOfChildren}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, noOfChildren: e.target.value }))}
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+
+                {/* Number of First Timers */}
+                <div>
+                  <label htmlFor="noOfFirstTimers" className="block text-sm font-medium text-gray-300">
+                    Number of First Timers
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfFirstTimers"
+                    min="0"
+                    value={attendanceForm.noOfFirstTimers}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, noOfFirstTimers: e.target.value }))}
+                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-300">
+                  Additional Notes
+                </label>
+                <textarea
+                  id="notes"
+                  value={attendanceForm.notes}
+                  onChange={(e) => setAttendanceForm(prev => ({ ...prev, notes: e.target.value }))}
+                  rows={3}
+                  className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all resize-none"
+                  placeholder="Any additional information..."
+                />
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAttendanceForm(false);
+                    setEditingId(null);
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={`px-3 py-1.5 rounded-xl text-sm text-white font-medium transition-all
+                    ${isSaving
+                      ? 'bg-blue-600/50 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  {isSaving ? 'Saving...' : editingId ? 'Update Attendance' : 'Save Attendance'}
+                </button>
+              </div>
             </form>
           </div>
         )}
