@@ -1540,8 +1540,25 @@ export default function DashboardPage() {
       <div className="fixed inset-y-0 right-0 z-50">
         {/* Member Form */}
         {showMemberForm && (
-          <div className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto
-            animate-slide-in-right">
+          <div 
+            className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto
+              transform transition-transform duration-300 ease-out"
+            style={{
+              animation: 'slideIn 0.3s ease-out',
+            }}
+          >
+            <style jsx>{`
+              @keyframes slideIn {
+                from {
+                  transform: translateX(100%);
+                  opacity: 0;
+                }
+                to {
+                  transform: translateX(0);
+                  opacity: 1;
+                }
+              }
+            `}</style>
             <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">
                 {editingId ? 'Edit Member' : 'Add New Member'}
