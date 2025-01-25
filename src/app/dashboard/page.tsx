@@ -1558,6 +1558,7 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
+
             <form onSubmit={handleMemberSubmit} className="p-6 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 {/* Full Name */}
