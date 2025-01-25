@@ -1520,11 +1520,11 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Member Form */}
-      {showMemberForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            {/* Header */}
+      {/* Forms Container */}
+      <div className="fixed inset-y-0 right-0 z-50">
+        {/* Member Form */}
+        {showMemberForm && (
+          <div className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto">
             <div className="sticky top-0 bg-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">
                 {editingId ? 'Edit Member' : 'Add New Member'}
@@ -1541,7 +1541,6 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
-
             {/* Form */}
             <form onSubmit={handleMemberSubmit} className="p-6 space-y-6">
               {/* Basic Information */}
@@ -1802,371 +1801,495 @@ export default function DashboardPage() {
               </div>
             </form>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Attendance Form Modal */}
-      {showAttendanceForm && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40">
-          <div className={styles.slidePanel} style={{ width: `${panelWidth}px` }}>
-            <div 
-              className={styles.resizeHandle}
-              onMouseDown={handleResizeStart}
-            />
-            <div className="h-full flex flex-col">
-              <div className="p-6 border-b border-gray-700/50">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-white">Mark Attendance</h3>
-                  <button
-                    onClick={() => setShowAttendanceForm(false)}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+        {/* Attendance Form */}
+        {showAttendanceForm && (
+          <div className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto">
+            <div className="sticky top-0 bg-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">Mark Attendance</h2>
+              <button
+                onClick={() => {
+                  setShowAttendanceForm(false);
+                  setEditingId(null);
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Form */}
+            <form onSubmit={handleAttendanceSubmit} className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="serviceDate" className="block text-sm font-medium text-gray-300">
+                    Service Date
+                  </label>
+                  <input
+                    type="date"
+                    id="serviceDate"
+                    value={attendanceForm.serviceDate}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, serviceDate: e.target.value }))}
+                    required
+                    className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="serviceType" className="block text-sm font-medium text-gray-300">
+                    Service Type
+                  </label>
+                  <div className="mt-1">
+                    <select
+                    id="serviceType"
+                    value={attendanceForm.serviceType}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === 'Other') {
+                          const customType = prompt('Enter custom service type:');
+                          if (customType) {
+                            setAttendanceForm(prev => ({ ...prev, serviceType: customType }));
+                          }
+                        } else {
+                          setAttendanceForm(prev => ({ ...prev, serviceType: value }));
+                        }
+                      }}
+                    required
+                    className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                    >
+                      <option value="">Select Service Type</option>
+                      {serviceTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
-              <div className={`flex-1 overflow-auto ${styles.scrollable}`}>
-                <form onSubmit={handleAttendanceSubmit} className="p-6 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="serviceDate" className="block text-sm font-medium text-gray-300">
-                        Service Date
-                      </label>
-                      <input
-                        type="date"
-                        id="serviceDate"
-                        value={attendanceForm.serviceDate}
-                        onChange={(e) => setAttendanceForm(prev => ({ ...prev, serviceDate: e.target.value }))}
-                        required
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="serviceType" className="block text-sm font-medium text-gray-300">
-                        Service Type
-                      </label>
-                      <div className="mt-1">
-                        <select
-                        id="serviceType"
-                        value={attendanceForm.serviceType}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (value === 'Other') {
-                              const customType = prompt('Enter custom service type:');
-                              if (customType) {
-                                setAttendanceForm(prev => ({ ...prev, serviceType: customType }));
-                              }
-                            } else {
-                              setAttendanceForm(prev => ({ ...prev, serviceType: value }));
-                            }
-                          }}
-                        required
-                        className="w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                        >
-                          <option value="">Select Service Type</option>
-                          {serviceTypes.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <label htmlFor="noOfMen" className="block text-sm font-medium text-gray-300">
-                        Number of Men
-                      </label>
-                      <input
-                        type="number"
-                        id="noOfMen"
-                        value={attendanceForm.noOfMen}
-                        onChange={(e) => handleAttendanceNumberInputChange('noOfMen', e.target.value)}
-                        required
-                        min="0"
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                        placeholder="Enter number"
-                      />
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label htmlFor="noOfMen" className="block text-sm font-medium text-gray-300">
+                    Number of Men
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfMen"
+                    value={attendanceForm.noOfMen}
+                    onChange={(e) => handleAttendanceNumberInputChange('noOfMen', e.target.value)}
+                    required
+                    min="0"
+                    className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                    placeholder="Enter number"
+                  />
+                </div>
 
-                    <div>
-                      <label htmlFor="noOfWomen" className="block text-sm font-medium text-gray-300">
-                        Number of Women
-                      </label>
-                      <input
-                        type="number"
-                        id="noOfWomen"
-                        min="0"
-                        value={attendanceForm.noOfWomen}
-                        onChange={(e) => handleNumberInputChange('noOfWomen', e.target.value)}
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      />
-                    </div>
+                <div>
+                  <label htmlFor="noOfWomen" className="block text-sm font-medium text-gray-300">
+                    Number of Women
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfWomen"
+                    min="0"
+                    value={attendanceForm.noOfWomen}
+                    onChange={(e) => handleNumberInputChange('noOfWomen', e.target.value)}
+                    className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
 
-                    <div>
-                      <label htmlFor="noOfBoys" className="block text-sm font-medium text-gray-300">
-                        Number of Boys
-                      </label>
-                      <input
-                        type="number"
-                        id="noOfBoys"
-                        min="0"
-                        value={attendanceForm.noOfBoys}
-                        onChange={(e) => handleNumberInputChange('noOfBoys', e.target.value)}
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      />
-                    </div>
+                <div>
+                  <label htmlFor="noOfBoys" className="block text-sm font-medium text-gray-300">
+                    Number of Boys
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfBoys"
+                    min="0"
+                    value={attendanceForm.noOfBoys}
+                    onChange={(e) => handleNumberInputChange('noOfBoys', e.target.value)}
+                    className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
 
-                    <div>
-                      <label htmlFor="noOfGirls" className="block text-sm font-medium text-gray-300">
-                        Number of Girls
-                      </label>
-                      <input
-                        type="number"
-                        id="noOfGirls"
-                        min="0"
-                        value={attendanceForm.noOfGirls}
-                        onChange={(e) => handleNumberInputChange('noOfGirls', e.target.value)}
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      />
-                    </div>
+                <div>
+                  <label htmlFor="noOfGirls" className="block text-sm font-medium text-gray-300">
+                    Number of Girls
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfGirls"
+                    min="0"
+                    value={attendanceForm.noOfGirls}
+                    onChange={(e) => handleNumberInputChange('noOfGirls', e.target.value)}
+                    className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
 
-                    <div>
-                      <label htmlFor="noOfChildren" className="block text-sm font-medium text-gray-300">
-                        Number of Children
-                      </label>
-                      <input
-                        type="number"
-                        id="noOfChildren"
-                        min="0"
-                        value={attendanceForm.noOfChildren}
-                        onChange={(e) => handleNumberInputChange('noOfChildren', e.target.value)}
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      />
-                    </div>
+                <div>
+                  <label htmlFor="noOfChildren" className="block text-sm font-medium text-gray-300">
+                    Number of Children
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfChildren"
+                    min="0"
+                    value={attendanceForm.noOfChildren}
+                    onChange={(e) => handleNumberInputChange('noOfChildren', e.target.value)}
+                    className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
+                </div>
 
-                    <div>
-                      <label htmlFor="noOfFirstTimers" className="block text-sm font-medium text-gray-300">
-                        First Timers
-                      </label>
-                      <input
-                        type="number"
-                        id="noOfFirstTimers"
-                        min="0"
-                        value={attendanceForm.noOfFirstTimers}
-                        onChange={(e) => handleNumberInputChange('noOfFirstTimers', e.target.value)}
-                        className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-lg bg-gray-700/30 border border-gray-600">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Total Attendance:</span>
-                      <span className="text-xl font-bold text-white">{calculateTotalAttendance()}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="notes" className="block text-sm font-medium text-gray-300">
-                      Notes
-                    </label>
-                    <textarea
-                      id="notes"
-                      value={attendanceForm.notes}
-                      onChange={(e) => setAttendanceForm(prev => ({ ...prev, notes: e.target.value }))}
-                      rows={3}
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all resize-none"
-                      placeholder="Add any additional notes..."
-                    />
-                  </div>
-
-                  <div className="flex justify-end space-x-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowAttendanceForm(false)}
-                      className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSaving}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
-                        transition-colors disabled:opacity-50 disabled:hover:bg-blue-500"
-                    >
-                      {isSaving ? 'Saving...' : 'Save Attendance'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Finance Form Modal */}
-      {showFinanceForm && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40">
-          <div className={styles.slidePanel} style={{ width: `${panelWidth}px` }}>
-            <div 
-              className={styles.resizeHandle}
-              onMouseDown={handleResizeStart}
-            />
-            <div className="h-full flex flex-col">
-              <div className="p-6 border-b border-gray-700/50">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-white">Record Transaction</h3>
-                  <button
-                    onClick={() => setShowFinanceForm(false)}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                <div>
+                  <label htmlFor="noOfFirstTimers" className="block text-sm font-medium text-gray-300">
+                    First Timers
+                  </label>
+                  <input
+                    type="number"
+                    id="noOfFirstTimers"
+                    min="0"
+                    value={attendanceForm.noOfFirstTimers}
+                    onChange={(e) => handleNumberInputChange('noOfFirstTimers', e.target.value)}
+                    className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                      focus:outline-none transition-all"
+                  />
                 </div>
               </div>
-              <div className={`flex-1 overflow-auto ${styles.scrollable}`}>
-                <form onSubmit={handleFinanceSubmit} className="p-6 space-y-6">
-                  <div>
-                    <label htmlFor="date" className="block text-sm font-medium text-gray-300">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      id="date"
-                      value={financeForm.date.toISOString().split('T')[0]}
-                      onChange={(e) => setFinanceForm(prev => ({ ...prev, date: new Date(e.target.value) }))}
-                      required
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                    />
-                  </div>
 
-                  <div>
-                    <label htmlFor="offeringAmount" className="block text-sm font-medium text-gray-300">
-                      Offering Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="offeringAmount"
-                      value={financeForm.offeringAmount}
-                      onChange={(e) => handleFinanceNumberInputChange(e, 'offeringAmount')}
-                      required
-                      min="0"
-                      step="0.01"
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                      placeholder="Enter amount"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="titheAmount" className="block text-sm font-medium text-gray-300">
-                      Tithe Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="titheAmount"
-                      value={financeForm.titheAmount}
-                      onChange={(e) => handleFinanceNumberInputChange(e, 'titheAmount')}
-                      min="0"
-                      step="0.01"
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                      placeholder="Enter amount"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="seedAmount" className="block text-sm font-medium text-gray-300">
-                      Seed Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="seedAmount"
-                      value={financeForm.seedAmount}
-                      onChange={(e) => handleFinanceNumberInputChange(e, 'seedAmount')}
-                      min="0"
-                      step="0.01"
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                      placeholder="Enter amount"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="seedOfFaithAmount" className="block text-sm font-medium text-gray-300">
-                      Seed of Faith Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="seedOfFaithAmount"
-                      value={financeForm.seedOfFaithAmount}
-                      onChange={(e) => handleFinanceNumberInputChange(e, 'seedOfFaithAmount')}
-                      min="0"
-                      step="0.01"
-                      className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                      placeholder="Enter amount"
-                    />
-                  </div>
-
-                  <div className="p-4 rounded-lg bg-gray-700/30 border border-gray-600">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Total Amount:</span>
-                      <span className="text-xl font-bold text-white">₦{totalAmount.toLocaleString()}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowFinanceForm(false)}
-                      className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSaving || parseFloat(financeForm.offeringAmount || '0') <= 0}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
-                        transition-colors disabled:opacity-50 disabled:hover:bg-blue-500"
-                    >
-                      {isSaving ? 'Saving...' : 'Save Transaction'}
-                    </button>
-                  </div>
-                </form>
+              <div className="p-4 rounded-lg bg-gray-700/30 border border-gray-600">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Total Attendance:</span>
+                  <span className="text-xl font-bold text-white">{calculateTotalAttendance()}</span>
+                </div>
               </div>
-            </div>
+
+              <div>
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-300">
+                  Notes
+                </label>
+                <textarea
+                  id="notes"
+                  value={attendanceForm.notes}
+                  onChange={(e) => setAttendanceForm(prev => ({ ...prev, notes: e.target.value }))}
+                  rows={3}
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all resize-none"
+                  placeholder="Add any additional notes..."
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAttendanceForm(false)}
+                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+                    transition-colors disabled:opacity-50 disabled:hover:bg-blue-500"
+                >
+                  {isSaving ? 'Saving...' : 'Save Attendance'}
+                </button>
+              </div>
+            </form>
           </div>
-        </div>
+        )}
+
+        {/* Finance Form */}
+        {showFinanceForm && (
+          <div className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto">
+            <div className="sticky top-0 bg-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">Record Transaction</h2>
+              <button
+                onClick={() => {
+                  setShowFinanceForm(false);
+                  setEditingId(null);
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Form */}
+            <form onSubmit={handleFinanceSubmit} className="p-6 space-y-6">
+              <div>
+                <label htmlFor="date" className="block text-sm font-medium text-gray-300">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  id="date"
+                  value={financeForm.date.toISOString().split('T')[0]}
+                  onChange={(e) => setFinanceForm(prev => ({ ...prev, date: new Date(e.target.value) }))}
+                  required
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="offeringAmount" className="block text-sm font-medium text-gray-300">
+                  Offering Amount
+                </label>
+                <input
+                  type="number"
+                  id="offeringAmount"
+                  value={financeForm.offeringAmount}
+                  onChange={(e) => handleFinanceNumberInputChange(e, 'offeringAmount')}
+                  required
+                  min="0"
+                  step="0.01"
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter amount"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="titheAmount" className="block text-sm font-medium text-gray-300">
+                  Tithe Amount
+                </label>
+                <input
+                  type="number"
+                  id="titheAmount"
+                  value={financeForm.titheAmount}
+                  onChange={(e) => handleFinanceNumberInputChange(e, 'titheAmount')}
+                  min="0"
+                  step="0.01"
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter amount"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="seedAmount" className="block text-sm font-medium text-gray-300">
+                  Seed Amount
+                </label>
+                <input
+                  type="number"
+                  id="seedAmount"
+                  value={financeForm.seedAmount}
+                  onChange={(e) => handleFinanceNumberInputChange(e, 'seedAmount')}
+                  min="0"
+                  step="0.01"
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter amount"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="seedOfFaithAmount" className="block text-sm font-medium text-gray-300">
+                  Seed of Faith Amount
+                </label>
+                <input
+                  type="number"
+                  id="seedOfFaithAmount"
+                  value={financeForm.seedOfFaithAmount}
+                  onChange={(e) => handleFinanceNumberInputChange(e, 'seedOfFaithAmount')}
+                  min="0"
+                  step="0.01"
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter amount"
+                />
+              </div>
+
+              <div className="p-4 rounded-lg bg-gray-700/30 border border-gray-600">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Total Amount:</span>
+                  <span className="text-xl font-bold text-white">₦{totalAmount.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowFinanceForm(false)}
+                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving || parseFloat(financeForm.offeringAmount || '0') <= 0}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
+                    transition-colors disabled:opacity-50 disabled:hover:bg-blue-500"
+                >
+                  {isSaving ? 'Saving...' : 'Save Transaction'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Announcement Form */}
+        {showAnnouncementForm && (
+          <div className="absolute inset-y-0 right-0 w-[600px] bg-gray-800 shadow-xl border-l border-gray-700 overflow-y-auto">
+            <div className="sticky top-0 bg-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">Add Announcement</h2>
+              <button
+                onClick={() => setShowAnnouncementForm(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Form */}
+            <form onSubmit={handleAnnouncementSubmit} className="p-6 space-y-6">
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-300">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  value={announcementForm.subject}
+                  onChange={(e) => setAnnouncementForm(prev => ({ ...prev, subject: e.target.value }))}
+                  required
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter subject"
+                />
+              </div>
+              <div>
+                <label htmlFor="content" className="block text-sm font-medium text-gray-300">
+                  Content
+                </label>
+                <textarea
+                  id="content"
+                  value={announcementForm.content}
+                  onChange={(e) => setAnnouncementForm(prev => ({ ...prev, content: e.target.value }))}
+                  rows={4}
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all resize-none"
+                  placeholder="Enter announcement content"
+                />
+              </div>
+              <div>
+                <label htmlFor="recipients" className="block text-sm font-medium text-gray-300">
+                  Recipients
+                </label>
+                <input
+                  type="text"
+                  id="recipients"
+                  value={announcementForm.recipients.join(', ')}
+                  onChange={(e) => setAnnouncementForm(prev => ({ ...prev, recipients: e.target.value.split(',').map(str => str.trim()) }))}
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter recipients separated by commas"
+                />
+              </div>
+              <div>
+                <label htmlFor="recipientGroups" className="block text-sm font-medium text-gray-300">
+                  Recipient Groups
+                </label>
+                <input
+                  type="text"
+                  id="recipientGroups"
+                  value={announcementForm.recipientGroups.join(', ')}
+                  onChange={(e) => setAnnouncementForm(prev => ({ ...prev, recipientGroups: e.target.value.split(',').map(str => str.trim()) }))}
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                  placeholder="Enter recipient groups separated by commas"
+                />
+              </div>
+              <div>
+                <label htmlFor="status" className="block text-sm font-medium text-gray-300">
+                  Status
+                </label>
+                <select
+                  id="status"
+                  value={announcementForm.status}
+                  onChange={(e) => setAnnouncementForm(prev => ({ 
+                    ...prev, 
+                    status: e.target.value === 'sent' ? 'sent' : 'draft' 
+                  }))}
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="sent">Sent</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="sentDate" className="block text-sm font-medium text-gray-300">
+                  Sent Date
+                </label>
+                <input
+                  type="datetime-local"
+                  id="sentDate"
+                  value={announcementForm.sentDate.toISOString().split('T')[0]}
+                  onChange={(e) => setAnnouncementForm(prev => ({ ...prev, sentDate: new Date(e.target.value) }))}
+                  className="mt-1 w-full px-4 py-2 rounded-lg bg-gray-700/50 text-white border border-gray-600
+                    focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
+                    focus:outline-none transition-all"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={`px-4 py-2 rounded-lg text-white font-medium transition-all
+                    ${isSaving
+                      ? 'bg-blue-600/50 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  {isSaving ? 'Sending...' : 'Send Announcement'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+
+      {/* Backdrop */}
+      {(showMemberForm || showAttendanceForm || showFinanceForm || showAnnouncementForm) && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          onClick={() => {
+            setShowMemberForm(false);
+            setShowAttendanceForm(false);
+            setShowFinanceForm(false);
+            setShowAnnouncementForm(false);
+            setEditingId(null);
+          }}
+        />
       )}
       <FloatingScrollButton />
     </div>
