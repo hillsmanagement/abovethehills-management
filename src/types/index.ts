@@ -42,7 +42,7 @@ export interface Transaction {
   offeringAmount: number;
   titheAmount: number;
   seedAmount: number;
-  seedOfFaithAmount: number;
+  seedOfFaithAmount?: number;
   date: Date;
   paymentMethod: string;
   status: string;

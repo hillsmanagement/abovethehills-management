@@ -37,8 +37,8 @@ interface FinanceFormData {
   offeringAmount: string;
   titheAmount: string;
   seedAmount: string;
-  seedOfFaithAmount: string;
   paymentMethod: string;
+  status: string;
 }
 
 type AnnouncementStatus = 'draft' | 'sent';
@@ -172,9 +172,17 @@ export default function DashboardPage() {
     offeringAmount: '',
     titheAmount: '',
     seedAmount: '',
-    seedOfFaithAmount: '',
-    paymentMethod: 'cash'
+    paymentMethod: 'cash',
+    status: 'completed'
   });
+
+  // Add new state for member suggestions
+  const [memberSuggestions, setMemberSuggestions] = useState<Array<{ fullName: string; phone: string }>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Add new state for visibility toggles
+  const [showTodayTotal, setShowTodayTotal] = useState(true);
+  const [showMonthlyTotal, setShowMonthlyTotal] = useState(true);
 
   // Clear success message after 3 seconds
   useEffect(() => {
@@ -256,8 +264,7 @@ export default function DashboardPage() {
   // Calculate total amount
   const totalAmount = (parseFloat(financeForm.offeringAmount) || 0) + 
     (parseFloat(financeForm.titheAmount) || 0) + 
-    (parseFloat(financeForm.seedAmount) || 0) + 
-    (parseFloat(financeForm.seedOfFaithAmount) || 0);
+    (parseFloat(financeForm.seedAmount) || 0);
 
   // Member categories
   const categories = [
@@ -453,10 +460,9 @@ export default function DashboardPage() {
         offeringAmount: parseFloat(financeForm.offeringAmount || '0'),
         titheAmount: parseFloat(financeForm.titheAmount || '0'),
         seedAmount: parseFloat(financeForm.seedAmount || '0'),
-        seedOfFaithAmount: parseFloat(financeForm.seedOfFaithAmount || '0'),
         paymentMethod: financeForm.paymentMethod,
         date: financeForm.date,
-        status: 'completed',
+        status: financeForm.status,
         pastorEmail: 'gracedclem@gmail.com',
         sentToPastor: false // Set this to false by default
       } as const;
@@ -483,8 +489,8 @@ export default function DashboardPage() {
         offeringAmount: '',
         titheAmount: '',
         seedAmount: '',
-        seedOfFaithAmount: '',
-        paymentMethod: 'cash'
+        paymentMethod: 'cash',
+        status: 'completed'
       });
       setSuccessMessage(editingId ? 'Transaction updated successfully' : 'Transaction saved successfully');
       setEditingId(null);
@@ -768,8 +774,8 @@ export default function DashboardPage() {
       offeringAmount: transaction.offeringAmount.toString(),
       titheAmount: transaction.titheAmount.toString(),
       seedAmount: transaction.seedAmount.toString(),
-      seedOfFaithAmount: transaction.seedOfFaithAmount.toString(),
       paymentMethod: transaction.paymentMethod,
+      status: transaction.status
     });
     setEditingId(transaction._id);
     setShowFinanceForm(true);
@@ -821,6 +827,38 @@ export default function DashboardPage() {
     'Choir', 'Drama', 'Usher', 'Protocol', 'ICT', 
     'Media', 'Task Force', 'Pastor', 'Sanctuary', 'Technical'
   ];
+
+  // Add function to handle member name input
+  const handleMemberNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMemberForm(prev => ({ ...prev, fullName: value }));
+    
+    // Filter existing members for matches
+    if (value.length > 2) {
+      const matches = members.filter(member => 
+        `${member.firstName} ${member.lastName}`.toLowerCase().includes(value.toLowerCase())
+      ).map(member => ({
+        fullName: `${member.firstName} ${member.lastName}`,
+        phone: member.phone
+      }));
+      setMemberSuggestions(matches);
+      setShowSuggestions(true);
+    } else {
+      setMemberSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  // Add function to handle suggestion selection
+  const handleSuggestionClick = (suggestion: { fullName: string; phone: string }) => {
+    setMemberForm(prev => ({
+      ...prev,
+      fullName: suggestion.fullName,
+      phone: suggestion.phone
+    }));
+    setShowSuggestions(false);
+    setError("This member is already registered!");
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex">
@@ -1305,7 +1343,8 @@ export default function DashboardPage() {
           {/* Finance tab content */}
           {activeTab === 'finance' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between mb-6">
+              {/* Header with Record Transaction Button */}
+              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">
                   <span className={`${styles.typingText} bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent`}>
                     FINANCE
@@ -1313,174 +1352,142 @@ export default function DashboardPage() {
                 </h2>
                 <button
                   onClick={() => setShowFinanceForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  <span>Record Transaction</span>
+                  Record Transaction
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 rounded-lg bg-gray-800/40 border border-gray-700/50">
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Today's Total</h3>
-                  <p className="text-2xl font-bold text-white">₦{financeSummary.today.totalAmount.toLocaleString() || ''}</p>
-                </div>
-                <div className="p-6 rounded-lg bg-gray-800/40 border border-gray-700/50">
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Monthly Total</h3>
-                  <p className="text-2xl font-bold text-white">₦{financeSummary.monthly.totalAmount.toLocaleString() || ''}</p>
+
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Today's Total Card */}
+                <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-white">Today's Total</h3>
+                    <button
+                      onClick={() => setShowTodayTotal(!showTodayTotal)}
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      {showTodayTotal ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                  <p className="text-2xl font-bold text-green-500">
+                    {showTodayTotal 
+                      ? `₦${financeSummary.today.totalAmount.toLocaleString()}`
+                      : '₦*****'}
+                  </p>
                 </div>
 
-                {/* Add detailed breakdown */}
-                <div className="col-span-2 p-6 rounded-lg bg-gray-800/40 border border-gray-700/50">
-                  <h3 className="text-sm font-medium text-gray-400 mb-4">Today's Breakdown</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="text-lg font-medium text-white mb-4">Today's Breakdown</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Offering:</span>
-                          <span className="text-white">₦{(financeSummary.today?.offering ?? '').toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Tithe:</span>
-                          <span className="text-white">₦{(financeSummary.today?.tithe ?? '').toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Seed:</span>
-                          <span className="text-white">₦{(financeSummary.today?.seed ?? '').toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Seed of Faith:</span>
-                          <span className="text-white">₦{(financeSummary.today?.seedOfFaith ?? '').toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-medium text-white mb-4">Monthly Breakdown</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Offering:</span>
-                          <span className="text-white">₦{(financeSummary.monthly?.offering ?? '').toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Tithe:</span>
-                          <span className="text-white">₦{(financeSummary.monthly?.tithe ?? '').toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Seed:</span>
-                          <span className="text-white">₦{(financeSummary.monthly?.seed ?? '').toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Seed of Faith:</span>
-                          <span className="text-white">₦{(financeSummary.monthly?.seedOfFaith ?? '').toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
+                {/* Monthly Total Card */}
+                <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-white">Monthly Total</h3>
+                    <button
+                      onClick={() => setShowMonthlyTotal(!showMonthlyTotal)}
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      {showMonthlyTotal ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                  <p className="text-2xl font-bold text-green-500">
+                    {showMonthlyTotal 
+                      ? `₦${financeSummary.monthly.totalAmount.toLocaleString()}`
+                      : '₦*****'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Transaction List */}
+              <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl border border-gray-700/50">
+                <div className="p-6 border-b border-gray-700/50">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-white">Recent Transactions</h3>
+                    <input
+                      type="date"
+                      value={searchDate}
+                      onChange={(e) => setSearchDate(e.target.value)}
+                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    />
                   </div>
                 </div>
 
-                <div className="rounded-lg bg-gray-800/40 border border-gray-700/50 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-700/50 flex justify-between items-center">
-                    <h3 className="text-lg font-medium text-white">Transactions</h3>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="date"
-                        value={searchDate}
-                        onChange={(e) => setSearchDate(e.target.value)}
-                        className="px-3 py-1.5 rounded-lg bg-gray-700/50 text-white border border-gray-600
-                          focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                          focus:outline-none transition-all"
-                      />
-                      <button
-                        onClick={handleFinanceDateSearch}
-                        className="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
-                      >
-                        Search
-                      </button>
-                    </div>
-                  </div>
+                <div className="divide-y divide-gray-700/50">
                   {Array.isArray(transactions) && transactions.length > 0 ? (
-                    <div key="transactions-list" className="divide-y divide-gray-700/50">
-                      {transactions.map(transaction => (
-                        <div key={transaction._id} className="px-6 py-4">
-                          <div className="flex justify-between items-center mb-3">
-                            <div>
-                              <p className="text-sm text-gray-400">
-                                {new Date(transaction.date).toLocaleDateString('en-US', {
-                                  weekday: 'long',
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                })}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleEditTransaction(transaction)}
-                                className="px-3 py-1.5 rounded text-sm bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteTransaction(transaction._id)}
-                                className="px-3 py-1.5 rounded text-sm bg-red-500/10 text-red-400 hover:bg-red-500/20"
-                              >
-                                Delete
-                              </button>
-                              <button
-                                onClick={() => handleSendTransactionToPastor(transaction._id)}
-                                disabled={transaction.sentToPastor}
-                                className={`px-3 py-1.5 rounded text-sm ${
-                                  transaction.sentToPastor
-                                    ? 'bg-green-500/10 text-green-400'
-                                    : 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20'
-                                }`}
-                              >
-                                {transaction.sentToPastor ? 'Sent to Pastor' : 'Send to Pastor'}
-                              </button>
-                            </div>
+                    transactions.map(transaction => (
+                      <div key={transaction._id} className="p-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <div>
+                            <p className="text-sm text-gray-400">
+                              {new Date(transaction.date).toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </p>
                           </div>
-                          <div className="space-y-2">
-                            {transaction.offeringAmount > 0 && (
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-400">Offering:</span>
-                                <span className="text-gray-300">₦{transaction.offeringAmount.toLocaleString()}</span>
-                              </div>
-                            )}
-                            {transaction.titheAmount > 0 && (
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-400">Tithe:</span>
-                                <span className="text-gray-300">₦{transaction.titheAmount.toLocaleString()}</span>
-                              </div>
-                            )}
-                            {transaction.seedAmount > 0 && (
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-400">Seed:</span>
-                                <span className="text-gray-300">₦{transaction.seedAmount.toLocaleString()}</span>
-                              </div>
-                            )}
-                            {transaction.seedOfFaithAmount > 0 && (
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-400">Seed of Faith:</span>
-                                <span className="text-gray-300">₦{transaction.seedOfFaithAmount.toLocaleString()}</span>
-                              </div>
-                            )}
-                            <div className="flex justify-between text-sm pt-2 border-t border-gray-700/50">
-                              <span className="font-medium text-gray-300">Total:</span>
-                              <span className="font-medium text-white">₦{(
-                                transaction.offeringAmount +
-                                transaction.titheAmount +
-                                transaction.seedAmount +
-                                transaction.seedOfFaithAmount
-                              ).toLocaleString()}</span>
-                            </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleEditTransaction(transaction)}
+                              className="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTransaction(transaction._id)}
+                              className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => handleSendTransactionToPastor(transaction._id)}
+                              disabled={transaction.sentToPastor}
+                              className={`px-3 py-1.5 rounded-lg ${
+                                transaction.sentToPastor
+                                  ? 'bg-green-500/10 text-green-400'
+                                  : 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20'
+                              }`}
+                            >
+                              {transaction.sentToPastor ? 'Sent to Pastor' : 'Send to Pastor'}
+                            </button>
                           </div>
                         </div>
-                      ))}
-                    </div>
+
+                        <div className="space-y-2">
+                          {transaction.offeringAmount > 0 && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-400">Offering:</span>
+                              <span className="text-gray-300">₦{transaction.offeringAmount.toLocaleString()}</span>
+                            </div>
+                          )}
+                          {transaction.titheAmount > 0 && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-400">Tithe:</span>
+                              <span className="text-gray-300">₦{transaction.titheAmount.toLocaleString()}</span>
+                            </div>
+                          )}
+                          {transaction.seedAmount > 0 && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-400">Seed:</span>
+                              <span className="text-gray-300">₦{transaction.seedAmount.toLocaleString()}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-sm pt-2 border-t border-gray-700/50">
+                            <span className="font-medium text-gray-300">Total:</span>
+                            <span className="font-medium text-white">₦{(
+                              transaction.offeringAmount +
+                              transaction.titheAmount +
+                              transaction.seedAmount
+                            ).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
                   ) : (
-                    <div className="px-6 py-4 text-gray-400 text-center">
+                    <div className="p-6 text-gray-400 text-center">
                       No transactions found
                     </div>
                   )}
@@ -1520,17 +1527,31 @@ export default function DashboardPage() {
                   <label htmlFor="fullName" className="block text-sm font-medium text-gray-300">
                     Full Name <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    id="fullName"
-                    value={memberForm.fullName}
-                    onChange={(e) => setMemberForm(prev => ({ ...prev, fullName: e.target.value }))}
-                    required
-                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
-                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                      focus:outline-none transition-all"
-                    placeholder="Enter full name"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="fullName"
+                      value={memberForm.fullName}
+                      onChange={handleMemberNameChange}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+                      required
+                    />
+                    {showSuggestions && memberSuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-auto">
+                        {memberSuggestions.map((suggestion, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-2 hover:bg-gray-600 cursor-pointer text-white"
+                            onClick={() => handleSuggestionClick(suggestion)}
+                          >
+                            <div className="font-medium">{suggestion.fullName}</div>
+                            <div className="text-sm text-gray-400">{suggestion.phone}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Phone Number */}
@@ -1974,169 +1995,105 @@ export default function DashboardPage() {
 
         {/* Finance Form */}
         {showFinanceForm && (
-          <div className={`${styles.slidePanel} overflow-y-auto max-h-screen`}>
-            <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">Record Transaction</h2>
-              <button
-                onClick={() => {
-                  setShowFinanceForm(false);
-                  setEditingId(null);
-                }}
-                className="p-1.5 rounded-full text-gray-400 hover:text-white hover:bg-gray-700/50 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleFinanceSubmit} className="p-6 space-y-6">
-              <div>
-                {/* Date */}
-                <div className="mb-4">
-                  <label htmlFor="date" className="block text-sm font-medium text-gray-300">
-                    Date <span className="text-red-500">*</span>
+          <div className={styles.slidePanel}>
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-white">Record Transaction</h2>
+                <button
+                  onClick={() => setShowFinanceForm(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+              <form onSubmit={handleFinanceSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Date
                   </label>
                   <input
                     type="date"
-                    id="date"
                     value={financeForm.date.toISOString().split('T')[0]}
                     onChange={(e) => setFinanceForm(prev => ({ ...prev, date: new Date(e.target.value) }))}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
                     required
-                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
-                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                      focus:outline-none transition-all"
                   />
                 </div>
 
-                {/* Payment Method */}
-                <div className="mb-4">
-                  <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-300">
-                    Payment Method <span className="text-red-500">*</span>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Offering Amount
+                  </label>
+                  <input
+                    type="number"
+                    value={financeForm.offeringAmount}
+                    onChange={(e) => handleFinanceNumberInputChange('offeringAmount')(e)}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Tithe Amount
+                  </label>
+                  <input
+                    type="number"
+                    value={financeForm.titheAmount}
+                    onChange={(e) => handleFinanceNumberInputChange('titheAmount')(e)}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Seed Amount
+                  </label>
+                  <input
+                    type="number"
+                    value={financeForm.seedAmount}
+                    onChange={(e) => handleFinanceNumberInputChange('seedAmount')(e)}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Payment Method
                   </label>
                   <select
-                    id="paymentMethod"
                     value={financeForm.paymentMethod}
                     onChange={(e) => setFinanceForm(prev => ({ ...prev, paymentMethod: e.target.value as any }))}
-                    required
-                    className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
-                      focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                      focus:outline-none transition-all"
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
                   >
                     <option value="cash">Cash</option>
                     <option value="bank_transfer">Bank Transfer</option>
-                    <option value="online">Online Payment</option>
+                    <option value="online">Online</option>
                   </select>
                 </div>
 
-                {/* Amounts */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Offering Amount */}
-                  <div>
-                    <label htmlFor="offeringAmount" className="block text-sm font-medium text-gray-300">
-                      Offering Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="offeringAmount"
-                      min="0"
-                      step="0.01"
-                      value={financeForm.offeringAmount}
-                      onChange={handleFinanceNumberInputChange('offeringAmount')}
-                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                    />
-                  </div>
-
-                  {/* Tithe Amount */}
-                  <div>
-                    <label htmlFor="titheAmount" className="block text-sm font-medium text-gray-300">
-                      Tithe Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="titheAmount"
-                      min="0"
-                      step="0.01"
-                      value={financeForm.titheAmount}
-                      onChange={handleFinanceNumberInputChange('titheAmount')}
-                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                    />
-                  </div>
-
-                  {/* Seed Amount */}
-                  <div>
-                    <label htmlFor="seedAmount" className="block text-sm font-medium text-gray-300">
-                      Seed Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="seedAmount"
-                      min="0"
-                      step="0.01"
-                      value={financeForm.seedAmount}
-                      onChange={handleFinanceNumberInputChange('seedAmount')}
-                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                    />
-                  </div>
-
-                  {/* Seed of Faith Amount */}
-                  <div>
-                    <label htmlFor="seedOfFaithAmount" className="block text-sm font-medium text-gray-300">
-                      Seed of Faith Amount
-                    </label>
-                    <input
-                      type="number"
-                      id="seedOfFaithAmount"
-                      min="0"
-                      step="0.01"
-                      value={financeForm.seedOfFaithAmount}
-                      onChange={handleFinanceNumberInputChange('seedOfFaithAmount')}
-                      className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-700/50 text-white border border-gray-600
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 
-                        focus:outline-none transition-all"
-                    />
-                  </div>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowFinanceForm(false)}
+                    className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Save Transaction
+                  </button>
                 </div>
-
-                {/* Total Amount Display */}
-                <div className="mt-6 p-4 bg-gray-700/30 rounded-xl border border-gray-600">
-                  <p className="text-sm font-medium text-gray-300">Total Amount</p>
-                  <p className="text-2xl font-bold text-white">
-                    ₦{totalAmount.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-
-              {/* Form Actions */}
-              <div className="flex justify-end gap-2 pt-4 border-t border-gray-700">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowFinanceForm(false);
-                    setEditingId(null);
-                  }}
-                  className="px-3 py-1.5 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving || !financeForm.date || !financeForm.paymentMethod}
-                  className={`px-3 py-1.5 rounded-xl text-sm text-white font-medium transition-all
-                    ${isSaving || !financeForm.date || !financeForm.paymentMethod
-                      ? 'bg-blue-600/50 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700'}`}
-                >
-                  {isSaving ? 'Saving...' : editingId ? 'Update Transaction' : 'Save Transaction'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         )}
 
